@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -15,6 +16,7 @@ import { CatsService } from './cats.service';
 import { HttpExceptionFilter } from '../common/exceptions/http-exception.filter';
 import { PositiveIntPipe } from '../common/pipes/positiveInt.pipe';
 import { SuccessInterceptor } from '../common/interceptions/success.interceptor';
+import { CatsRequestDto } from './dto/cats.request.dto';
 
 @Controller('cats')
 @UseInterceptors(SuccessInterceptor)
@@ -26,9 +28,9 @@ export class CatsController {
     return 'current cat';
   }
 
-  @Post('login')
-  async signUp() {
-    return 'signup';
+  @Post('signup')
+  async signUp(@Body() body: CatsRequestDto) {
+    return await this.catsService.signUp(body);
   }
 
   @Post('login')

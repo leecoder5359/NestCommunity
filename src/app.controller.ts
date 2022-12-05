@@ -9,7 +9,7 @@ export class AppController {
     private readonly catService: CatsService,
   ) {}
   @Get()
-  getHello(): string {
+  getHello() {
     return this.appService.getHello();
   }
 
