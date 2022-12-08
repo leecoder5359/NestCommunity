@@ -4,10 +4,12 @@ import { Model } from 'mongoose';
 import { Cat } from './cats.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
+import { CatsRepository } from "./cats.repository";
 
 @Injectable()
 export class CatsService {
-  constructor(@InjectModel(Cat.name) private catModel: Model<Cat>) {}
+  // constructor(@InjectModel(Cat.name) private catModel: Model<Cat>) {} // repository pattern 미적용 시
+  constructor(private readonly catsRepository: CatsRepository) {} // repository pattern 적용 시
 
   hiCatServiceProduct() {
     return 'hello cat!';
@@ -15,7 +17,7 @@ export class CatsService {
 
   async signUp(body: CatsRequestDto) {
     const { email, name, password } = body;
-    const isCatExist = await this.catModel.exists({ email });
+    const isCatExist = await this.catsRepository.existsByEmail(email);
 
     if (isCatExist) {
       /** 해당 방법과 동일
@@ -26,7 +28,7 @@ export class CatsService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const cat = await this.catModel.create({
+    const cat = await this.catsRepository.create({
       email,
       name,
       password: hashedPassword,
