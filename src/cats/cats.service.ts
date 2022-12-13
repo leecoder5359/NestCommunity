@@ -5,11 +5,14 @@ import { Cat } from './cats.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { CatsRepository } from "./cats.repository";
+import { AuthService } from "src/auth/auth.service";
 
 @Injectable()
 export class CatsService {
   // constructor(@InjectModel(Cat.name) private catModel: Model<Cat>) {} // repository pattern 미적용 시
-  constructor(private readonly catsRepository: CatsRepository) {} // repository pattern 적용 시
+  constructor(
+    private readonly catsRepository: CatsRepository,
+  ) {} // repository pattern 적용 시
 
   hiCatServiceProduct() {
     return 'hello cat!';
