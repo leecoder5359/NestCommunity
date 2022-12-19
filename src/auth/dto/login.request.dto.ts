@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { PickType } from "@nestjs/swagger";
-import { Cat } from "src/cats/cats.schema";
+import { Cats } from "src/cats/cats.schema";
 
 @Injectable()
-export class LoginRequestDto extends PickType(Cat, [
+export class LoginRequestDto extends PickType(Cats, [
     'email',
     'password',
 ] as const){}

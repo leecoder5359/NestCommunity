@@ -1,41 +1,54 @@
-import { HttpException, Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
-import { Cat } from "./cats.schema";
-import { CatsRequestDto } from "./dto/cats.request.dto";
+import { CommentsSchema } from '../comments/comments.schema';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { Cats } from './cats.schema';
+import { CatsRequestDto } from './dto/cats.request.dto';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class CatsRepository {
-    constructor(@InjectModel(Cat.name) private readonly catModel: Model<Cat>) {}
+  constructor(@InjectModel(Cats.name) private readonly catModel: Model<Cats>) {}
 
-    async existsByEmail(email: string): Promise<boolean> {
-        const result = await this.catModel.exists({ email });
-        return !!result;
-    }
+  async findAll() {
+    const CommentsModel = mongoose.model('comments', CommentsSchema);
 
-    async create(cat: CatsRequestDto): Promise<Cat> {
-        return await this.catModel.create(cat);
-    }
+    const result = await this.catModel
+      .find()
+      .populate('comments', CommentsModel);
 
-    async findAll(){
-        return await this.catModel.find();
-    }
+    return result;
+  }
 
-    async findCatByEmail(email: string): Promise<Cat | null> {
-        return await this.catModel.findOne({email});
-    }
+  async findByIdAndUpdateImg(id: string, fileName: string) {
+    const cat = await this.catModel.findById(id);
 
-    async findCatByIdWithoutPassword(catId: string | Types.ObjectId): Promise<Cat | null> {
-        return await this.catModel.findById(catId).select('-password');
-    }
-    
-    async findByIdAndUpdateImg(id: string, fileName: string) {
-        const cat = await this.catModel.findById(id);
+    cat.imgUrl = `http://localhost:8000/media/${fileName}`;
 
-        cat.imgUrl = `http://localhost:8005/media/${fileName}`;
+    const newCat = await cat.save();
 
-        const newCat = await cat.save();
-        console.log(newCat);
-        return newCat.readOnlyData;
-    }
+    console.log(newCat);
+    return newCat.readOnlyData;
+  }
+
+  async findCatByIdWithoutPassword(
+    catId: string | Types.ObjectId,
+  ): Promise<Cats | null> {
+    const cat = await this.catModel.findById(catId).select('-password');
+    return cat;
+  }
+
+  async findCatByEmail(email: string): Promise<Cats | null> {
+    const cat = await this.catModel.findOne({ email });
+    return cat;
+  }
+
+  async existsByEmail(email: string): Promise<boolean | Object> {
+    const result = await this.catModel.exists({ email });
+    return result;
+  }
+
+  async create(cat: CatsRequestDto): Promise<Cats> {
+    return await this.catModel.create(cat);
+  }
 }

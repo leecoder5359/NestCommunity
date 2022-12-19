@@ -37,7 +37,6 @@ export class Comments extends Document {
   })
   @Prop({
     default: 0,
-    required: true,
   })
   @IsPositive()
   likeCount: number;
@@ -49,10 +48,10 @@ export class Comments extends Document {
   @Prop({
     type: Types.ObjectId,
     required: true,
-    ref: 'cats'
+    ref: 'cats',
   })
   @IsNotEmpty()
-  info: string;
+  info: Types.ObjectId;
 }
 
 export const CommentsSchema = SchemaFactory.createForClass(Comments);
