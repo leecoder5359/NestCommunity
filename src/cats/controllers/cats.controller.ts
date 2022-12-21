@@ -16,9 +16,10 @@ import { LoginRequestDto } from 'src/auth/dto/login.request.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { CurrentUser } from 'src/common/decorators/user.decorator';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/utils/multer.options';
 import { Cats } from '../cats.schema';
+import { AwsService } from 'src/aws/aws.service';
 
 @Controller('cats')
 @UseInterceptors(SuccessInterceptor)
@@ -26,6 +27,7 @@ export class CatsController {
   constructor(
     private readonly catsService: CatsService,
     private readonly authService: AuthService,
+    private readonly awsService: AwsService,
   ) {}
 
   @ApiOperation({ summary: '유저 목록' })
@@ -69,11 +71,20 @@ export class CatsController {
   @UseGuards(JwtAuthGuard)
   @Post('upload')
   uploadCatImg(
-    @UploadedFiles() files: Array<Express.Multer.File>,
     @CurrentUser() cat: Cats,
+    @UploadedFiles() files: Express.Multer.File,
   ) {
-    console.log(files);
+    console.log('file', files);
     return this.catsService.uploadImg(cat, files);
+
+    // console.log('file',file);
+  }
+
+  @ApiOperation({ summary: '업로드 이미지 주소 가져오기' })
+  @UseGuards(JwtAuthGuard)
+  @Post('cats')
+  getImageUrl(@Body('key') key: string) {
+    return this.awsService.getAwsS3FileUrl(key);
   }
 
   @ApiOperation({ summary: '모든 유저 가져오기' })
@@ -81,4 +92,6 @@ export class CatsController {
   getAllUser() {
     return this.catsService.getAllUser();
   }
+
+
 }

@@ -7,6 +7,7 @@ import { CatsRepository } from './cats.repository';
 import { Cats, CatSchema } from './cats.schema';
 import { CatsService } from './services/cats.service';
 import { CommentsSchema, Comments } from '../comments/comments.schema';
+import { AwsService } from 'src/aws/aws.service';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { CommentsSchema, Comments } from '../comments/comments.schema';
     forwardRef(() => AuthModule),
   ],
   controllers: [CatsController],
-  providers: [CatsService, CatsRepository],
+  providers: [CatsService, CatsRepository, AwsService],
   exports: [CatsService, CatsRepository],
 })
 export class CatsModule {}

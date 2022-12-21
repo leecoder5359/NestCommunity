@@ -6,12 +6,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { CatsRepository } from "../cats.repository";
 import { AuthService } from "src/auth/auth.service";
+import { AwsService } from "src/aws/aws.service";
 
 @Injectable()
 export class CatsService {
   // constructor(@InjectModel(Cat.name) private catModel: Model<Cat>) {} // repository pattern 미적용 시
   constructor(
     private readonly catsRepository: CatsRepository,
+    private readonly awsService: AwsService,
   ) {} // repository pattern 적용 시
 
   hiCatServiceProduct() {
@@ -40,12 +42,17 @@ export class CatsService {
     return cat.readOnlyData;
   }
 
-  async uploadImg(cat: Cats, files: Express.Multer.File[]) {
-    const fileName = `cats/${files[0].filename}`;
+  async uploadImg(cat: Cats, file: Express.Multer.File) {
+    console.log('file',file[0]);
+    const fileName = `cats/${file[0].filename}`;
     console.log(fileName);
+
+    const s3Upload = await this.awsService.uploadFileToS3('cats', file);
+    console.log('s3Upload', s3Upload);
+
     const newCat = await this.catsRepository.findByIdAndUpdateImg(
       cat.id,
-      fileName
+      s3Upload.key
     )
     console.log(newCat);
     return newCat;

@@ -8,7 +8,7 @@ import * as mongoose from 'mongoose';
 
 @Injectable()
 export class CatsRepository {
-  constructor(@InjectModel(Cats.name) private readonly catModel: Model<Cats>) {}
+  constructor(@InjectModel(Cats.name) private readonly catModel: Model<Cats>,) {}
 
   async findAll() {
     const CommentsModel = mongoose.model('comments', CommentsSchema);
@@ -23,7 +23,7 @@ export class CatsRepository {
   async findByIdAndUpdateImg(id: string, fileName: string) {
     const cat = await this.catModel.findById(id);
 
-    cat.imgUrl = `http://localhost:8000/media/${fileName}`;
+    cat.imgUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/${fileName}`;
 
     const newCat = await cat.save();
 
